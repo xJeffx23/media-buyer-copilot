@@ -1,0 +1,46 @@
+# Configuración general. Los secretos van en .env, nunca aquí.
+
+me:
+  name: "Jeff"
+  service: "Media buyer (Meta Ads, Google Ads, TikTok Ads)"
+  language: "es"                # idioma de los mensajes y reportes
+  instagram_handle: ""          # tu @ sin la arroba
+
+ai:
+  model: "claude-opus-5-5"
+  effort: "medium"              # low | medium | high — más alto = mejor análisis y más costo
+
+leads:
+  # Ciudades donde buscar negocios (formato "Ciudad, País")
+  locations:
+    - "Ciudad de México, México"
+    - "Bogotá, Colombia"
+    - "Madrid, España"
+  # Qué tiers de config/niches.yaml procesar por defecto
+  tiers: ["A"]
+  max_places_per_search: 20     # resultados de Google Maps por (nicho x ciudad)
+  ad_library_country: "ALL"     # código ISO (MX, CO, ES, US) o ALL
+  max_ads_per_keyword: 30
+  ai_top_n: 25                  # cuántos de los mejores leads pasan por diagnóstico con IA
+
+trends:
+  region: "MX"                  # región para Google Trends y YouTube
+  subreddits: ["PPC", "FacebookAds", "marketing", "socialmedia", "Entrepreneur", "digital_marketing"]
+  rss_feeds:
+    - "https://www.socialmediatoday.com/feeds/news/"
+    - "https://blog.hubspot.com/marketing/rss.xml"
+    - "https://www.searchenginejournal.com/feed/"
+  youtube_queries: ["meta ads 2026", "media buyer", "marca personal", "day in the life entrepreneur"]
+  # Pilares de contenido de tu marca personal
+  content_pillars:
+    - "Autoridad: casos, métricas y errores comunes en anuncios"
+    - "Detrás de cámara: cómo trabajo, herramientas, rutina"
+    - "Lifestyle: viajes, hábitos, mentalidad de emprendedor"
+    - "Tendencias: lo que está pasando en ads y redes"
+    - "Venta: anuncios propios para conseguir clientes"
+
+ig_audit:
+  graph_api_version: "v23.0"
+  posts_to_analyze: 30
+  # Cuentas de referencia/competencia (sin @)
+  competitors: []

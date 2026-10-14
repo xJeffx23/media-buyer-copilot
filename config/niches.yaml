@@ -1,0 +1,128 @@
+# Nichos priorizados para vender servicios de media buying.
+#
+# Criterios (1-5 cada uno):
+#   ticket:      valor de un cliente para el negocio (LTV). Más alto = más presupuesto para ads.
+#   ads_fit:     qué tan bien funcionan los anuncios pagados en ese nicho.
+#   pay_ability: capacidad de pagar un fee mensual de media buyer.
+#   speed:       qué tan rápido se ven resultados (leads/ventas) para retener al cliente.
+# priority = suma de criterios. Tier A = atacar primero.
+#
+# search_terms: lo que se busca en Google Maps (ajusta al idioma del país objetivo).
+# ad_keywords:  lo que se busca en la Biblioteca de Anuncios de Meta.
+# pitch:        ángulo de venta para el mensaje de prospección.
+
+niches:
+  # ---------------- TIER A ----------------
+  - id: clinica_estetica
+    name: Clínicas estéticas / Med spas
+    tier: A
+    scores: { ticket: 5, ads_fit: 5, pay_ability: 5, speed: 5 }
+    search_terms: ["clínica estética", "medicina estética", "med spa"]
+    ad_keywords: ["botox", "ácido hialurónico", "depilación láser"]
+    pitch: "Pacientes de alto ticket con ofertas de primera cita y retargeting de video."
+
+  - id: dental
+    name: Clínicas dentales (implantes, ortodoncia, carillas)
+    tier: A
+    scores: { ticket: 5, ads_fit: 5, pay_ability: 5, speed: 4 }
+    search_terms: ["clínica dental", "implantes dentales", "ortodoncia invisible"]
+    ad_keywords: ["implantes dentales", "carillas", "ortodoncia invisible"]
+    pitch: "Un solo paciente de implantes paga meses de publicidad."
+
+  - id: mentorias
+    name: Mentorías, coaches e infoproductos
+    tier: A
+    scores: { ticket: 5, ads_fit: 5, pay_ability: 4, speed: 5 }
+    search_terms: []          # no están en Google Maps: se buscan en Ad Library e Instagram
+    ad_keywords: ["mentoría", "masterclass gratis", "programa de coaching", "webinar gratuito"]
+    pitch: "Embudos de webinar/VSL y escalado de creativos que ya convierten."
+
+  - id: inmobiliaria
+    name: Inmobiliarias y desarrolladores
+    tier: A
+    scores: { ticket: 5, ads_fit: 4, pay_ability: 5, speed: 3 }
+    search_terms: ["inmobiliaria", "agencia inmobiliaria", "desarrollos inmobiliarios"]
+    ad_keywords: ["departamentos en preventa", "casas en venta", "invierte en"]
+    pitch: "Leads calificados con formularios instantáneos y filtros de presupuesto."
+
+  - id: cirugia_plastica
+    name: Cirujanos plásticos
+    tier: A
+    scores: { ticket: 5, ads_fit: 4, pay_ability: 5, speed: 4 }
+    search_terms: ["cirujano plástico", "cirugía plástica"]
+    ad_keywords: ["lipoescultura", "aumento de busto", "rinoplastia"]
+    pitch: "Valoraciones agendadas, no solo 'me interesa' en los comentarios."
+
+  # ---------------- TIER B ----------------
+  - id: ecommerce
+    name: E-commerce / marcas DTC
+    tier: B
+    scores: { ticket: 3, ads_fit: 5, pay_ability: 4, speed: 5 }
+    search_terms: []
+    ad_keywords: ["envío gratis", "compra ahora", "tienda online"]
+    pitch: "Escalar ROAS con testing de creativos y catálogo dinámico."
+
+  - id: abogados
+    name: Abogados (migración, accidentes, divorcios, laboral)
+    tier: B
+    scores: { ticket: 5, ads_fit: 3, pay_ability: 5, speed: 3 }
+    search_terms: ["abogado de inmigración", "abogado laboral", "abogado de accidentes"]
+    ad_keywords: ["abogado", "consulta gratuita", "asesoría legal"]
+    pitch: "Consultas calificadas por caso, con filtrado previo."
+
+  - id: fitness
+    name: Gimnasios boutique, CrossFit, entrenadores
+    tier: B
+    scores: { ticket: 3, ads_fit: 5, pay_ability: 3, speed: 5 }
+    search_terms: ["gimnasio", "crossfit", "estudio de pilates", "entrenador personal"]
+    ad_keywords: ["clase gratis", "reto 30 días", "pilates reformer"]
+    pitch: "Ofertas de prueba que llenan el estudio en semanas."
+
+  - id: servicios_hogar
+    name: Servicios para el hogar (paneles solares, remodelación, HVAC)
+    tier: B
+    scores: { ticket: 4, ads_fit: 4, pay_ability: 4, speed: 3 }
+    search_terms: ["paneles solares", "remodelaciones", "aire acondicionado instalación"]
+    ad_keywords: ["paneles solares", "cotización gratis", "remodelación"]
+    pitch: "Cotizaciones locales con formularios y llamadas directas."
+
+  - id: academias
+    name: Academias y escuelas (idiomas, oficios, cursos presenciales)
+    tier: B
+    scores: { ticket: 3, ads_fit: 4, pay_ability: 3, speed: 4 }
+    search_terms: ["academia de inglés", "escuela de barbería", "academia de maquillaje"]
+    ad_keywords: ["inscripciones abiertas", "curso", "academia"]
+    pitch: "Llenar cohortes antes de la fecha de inicio."
+
+  - id: salud_especialistas
+    name: Especialistas médicos (dermatología, nutrición, fisioterapia)
+    tier: B
+    scores: { ticket: 3, ads_fit: 4, pay_ability: 4, speed: 4 }
+    search_terms: ["dermatólogo", "nutriólogo", "fisioterapia"]
+    ad_keywords: ["agenda tu cita", "consulta", "nutrición"]
+    pitch: "Agenda llena con campañas locales de citas."
+
+  # ---------------- TIER C ----------------
+  - id: restaurantes
+    name: Restaurantes y cafeterías
+    tier: C
+    scores: { ticket: 1, ads_fit: 4, pay_ability: 2, speed: 4 }
+    search_terms: ["restaurante", "cafetería", "sushi"]
+    ad_keywords: ["menú", "reserva", "delivery"]
+    pitch: "Más reservas entre semana y eventos especiales."
+
+  - id: concesionarios
+    name: Concesionarios y venta de autos
+    tier: C
+    scores: { ticket: 4, ads_fit: 3, pay_ability: 4, speed: 2 }
+    search_terms: ["concesionario", "autos seminuevos"]
+    ad_keywords: ["autos seminuevos", "financiamiento", "prueba de manejo"]
+    pitch: "Leads de prueba de manejo con crédito precalificado."
+
+  - id: eventos
+    name: Salones de eventos, bodas, fotógrafos
+    tier: C
+    scores: { ticket: 3, ads_fit: 3, pay_ability: 2, speed: 3 }
+    search_terms: ["salón de eventos", "wedding planner", "fotógrafo de bodas"]
+    ad_keywords: ["boda", "eventos", "fotografía"]
+    pitch: "Llenar el calendario de temporada alta con anticipación."
