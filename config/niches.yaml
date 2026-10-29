@@ -10,6 +10,9 @@
 # search_terms: lo que se busca en Google Maps (ajusta al idioma del país objetivo).
 # ad_keywords:  lo que se busca en la Biblioteca de Anuncios de Meta.
 # pitch:        ángulo de venta para el mensaje de prospección.
+# ad_page_categories (opcional): en Ad Library, solo páginas cuya categoría de Facebook
+#               contenga alguno de estos textos. Quita proveedores y tiendas que se cuelan.
+# ad_exclude_cta (opcional): descarta anuncios con ese botón (SHOP_NOW = tiendas online).
 
 niches:
   # ---------------- TIER A ----------------
@@ -20,6 +23,8 @@ niches:
     search_terms: ["clínica estética", "medicina estética", "med spa"]
     ad_keywords: ["botox", "ácido hialurónico", "depilación láser"]
     pitch: "Pacientes de alto ticket con ofertas de primera cita y retargeting de video."
+    ad_page_categories: ["beauty", "belleza", "medical", "médic", "doctor", "spa", "dermatolog", "surgeon", "cirujan", "clinic", "clínic", "salud", "health"]
+    ad_exclude_cta: ["SHOP_NOW"]
 
   - id: dental
     name: Clínicas dentales (implantes, ortodoncia, carillas)
@@ -28,6 +33,8 @@ niches:
     search_terms: ["clínica dental", "implantes dentales", "ortodoncia invisible"]
     ad_keywords: ["implantes dentales", "carillas", "ortodoncia invisible"]
     pitch: "Un solo paciente de implantes paga meses de publicidad."
+    ad_page_categories: ["dent", "medical", "médic", "doctor", "clinic", "clínic", "salud", "health", "orthodont"]
+    ad_exclude_cta: ["SHOP_NOW"]
 
   - id: mentorias
     name: Mentorías, coaches e infoproductos
@@ -44,6 +51,7 @@ niches:
     search_terms: ["inmobiliaria", "agencia inmobiliaria", "desarrollos inmobiliarios"]
     ad_keywords: ["departamentos en preventa", "casas en venta", "invierte en"]
     pitch: "Leads calificados con formularios instantáneos y filtros de presupuesto."
+    ad_page_categories: ["real estate", "inmobiliari", "bienes raíces", "property", "construc", "developer"]
 
   - id: cirugia_plastica
     name: Cirujanos plásticos
@@ -52,6 +60,8 @@ niches:
     search_terms: ["cirujano plástico", "cirugía plástica"]
     ad_keywords: ["lipoescultura", "aumento de busto", "rinoplastia"]
     pitch: "Valoraciones agendadas, no solo 'me interesa' en los comentarios."
+    ad_page_categories: ["surgeon", "cirujan", "medical", "médic", "doctor", "clinic", "clínic", "beauty", "belleza", "salud", "health", "hospital"]
+    ad_exclude_cta: ["SHOP_NOW"]
 
   # ---------------- TIER B ----------------
   - id: ecommerce
@@ -69,6 +79,7 @@ niches:
     search_terms: ["abogado de inmigración", "abogado laboral", "abogado de accidentes"]
     ad_keywords: ["abogado", "consulta gratuita", "asesoría legal"]
     pitch: "Consultas calificadas por caso, con filtrado previo."
+    ad_page_categories: ["lawyer", "law firm", "legal", "abogad", "attorney"]
 
   - id: fitness
     name: Gimnasios boutique, CrossFit, entrenadores
@@ -101,6 +112,8 @@ niches:
     search_terms: ["dermatólogo", "nutriólogo", "fisioterapia"]
     ad_keywords: ["agenda tu cita", "consulta", "nutrición"]
     pitch: "Agenda llena con campañas locales de citas."
+    ad_page_categories: ["medical", "médic", "doctor", "dermatolog", "nutri", "physical therap", "fisio", "clinic", "clínic", "salud", "health"]
+    ad_exclude_cta: ["SHOP_NOW"]
 
   # ---------------- TIER C ----------------
   - id: restaurantes

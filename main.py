@@ -5,6 +5,7 @@ Ejemplos:
   python main.py leads                      # tiers por defecto de settings.yaml
   python main.py leads --tier A B --no-ai
   python main.py leads --niche dental --source ads web
+  python main.py crm                        # guarda los status que editaste en el CSV
   python main.py tendencias
   python main.py instagram
 """
@@ -24,6 +25,21 @@ def cmd_leads(args) -> None:
     from modules.leads import pipeline
 
     pipeline.run(tiers=args.tier, niche_ids=args.niche, sources=tuple(args.source), use_ai=not args.no_ai)
+
+
+def cmd_crm(_args) -> None:
+    from core import storage
+    from core.config import REPORTS_DIR
+    from modules.leads.pipeline import sync_crm
+
+    conn = storage.connect()
+    sync_crm(conn)
+    for r in conn.execute("SELECT status, count(*) AS n FROM leads GROUP BY status ORDER BY n DESC"):
+        print(f"  {r['status']:<12} {r['n']}")
+    path = storage.latest_leads_csv(REPORTS_DIR)
+    if path:
+        storage.export_csv(conn, path)
+        print(f"CSV actualizado: {path}")
 
 
 def cmd_tendencias(_args) -> None:
@@ -51,6 +67,7 @@ def main() -> None:
     p.add_argument("--no-ai", action="store_true", help="Solo scoring heurístico, sin costo de IA")
     p.set_defaults(func=cmd_leads)
 
+    sub.add_parser("crm", help="Importa los status editados en el CSV y muestra el embudo").set_defaults(func=cmd_crm)
     sub.add_parser("tendencias", help="Radar de tendencias e ideas de contenido").set_defaults(func=cmd_tendencias)
     sub.add_parser("instagram", help="Auditoría de tu cuenta de Instagram").set_defaults(func=cmd_instagram)
 

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from core.apify import run_actor
+from modules.leads.links import normalize_key, split_link
 
 ACTOR = "compass/crawler-google-places"
 
@@ -25,6 +26,7 @@ def search(niche: dict, location: str, max_places: int, language: str = "es") ->
         key = website or it.get("placeId") or it.get("url")
         if not key:
             continue
+        link = split_link(website)  # si "website" es su Facebook o Instagram, va a su campo
         leads.append(
             {
                 "id": normalize_key(key),
@@ -33,17 +35,12 @@ def search(niche: dict, location: str, max_places: int, language: str = "es") ->
                 "name": it.get("title"),
                 "city": it.get("city") or location,
                 "phone": it.get("phone"),
-                "website": website,
+                "website": link.get("website", ""),
+                "instagram": link.get("instagram"),
+                "facebook_page": link.get("facebook_page"),
                 "rating": it.get("totalScore"),
                 "reviews": it.get("reviewsCount"),
                 "raw": {k: it.get(k) for k in ("address", "categoryName", "url", "placeId")},
             }
         )
     return leads
-
-
-def normalize_key(value: str) -> str:
-    v = value.lower().strip()
-    for prefix in ("https://", "http://", "www."):
-        v = v.removeprefix(prefix)
-    return v.rstrip("/")

@@ -35,7 +35,10 @@ def score(lead: dict, niche: dict) -> tuple[int, list[str]]:
         pts += 10
         reasons.append("Su web no tiene Pixel de Meta")
 
-    if lead.get("email") or lead.get("phone") or lead.get("instagram"):
+    raw = lead.get("raw") or {}
+    if isinstance(raw, str):
+        raw = json.loads(raw)
+    if lead.get("email") or lead.get("phone") or lead.get("instagram") or raw.get("whatsapp"):
         pts += 10
         reasons.append("Tiene datos de contacto")
 
