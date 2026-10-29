@@ -8,14 +8,19 @@ solo hay que demostrarle que puede rendir más.
 """
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from datetime import datetime, timezone
 from urllib.parse import quote_plus
 
 from core.apify import run_actor
-from modules.leads.sources.google_maps import normalize_key
+from modules.leads.links import domain, normalize_key, split_link
 
 ACTOR = "apify/facebook-ads-scraper"
+# Teléfonos escritos en el texto del anuncio (+506 8888-8888, 2222 3333, etc.)
+# Categorías de página que nunca son un negocio de servicios (aunque digan "beauty" o "health")
+STORE_CATEGORIES = ("suppl", "shopping", "retail", "store", "tienda", "household", "product/service")
+PHONE_RE = re.compile(r"(?<![\d.,])(?:\+\d{1,3}[\s.-]?)?(?:\d{2,4}[\s.-]){1,2}\d{4}(?![\d.,])")
 
 
 def library_url(keyword: str, country: str) -> str:
@@ -25,7 +30,7 @@ def library_url(keyword: str, country: str) -> str:
     )
 
 
-def search(niche: dict, country: str, max_ads: int) -> list[dict]:
+def search(niche: dict, country: str, max_ads: int, max_page_likes: int | None = None) -> list[dict]:
     if not niche["ad_keywords"]:
         return []
     items = run_actor(
@@ -35,34 +40,64 @@ def search(niche: dict, country: str, max_ads: int) -> list[dict]:
             "resultsLimit": max_ads,
         },
     )
-    return group_by_page(items, niche["id"])
+    return group_by_page(items, niche, max_page_likes)
 
 
 def _get(d: dict, *keys, default=None):
-    """El actor puede devolver camelCase o snake_case según la versión."""
+    """El actor ha devuelto camelCase o snake_case según la versión: se prueban ambos."""
     for k in keys:
         if d.get(k) not in (None, ""):
             return d[k]
     return default
 
 
-def group_by_page(items: list[dict], niche_id: str) -> list[dict]:
+def find_phone(text: str) -> str | None:
+    for m in PHONE_RE.findall(text or ""):
+        if 8 <= sum(c.isdigit() for c in m) <= 13:
+            return m.strip()
+    return None
+
+
+def is_target(niche: dict, categories: list[str], cta: str, likes: int | None, max_page_likes: int | None) -> bool:
+    """Descarta proveedores, tiendas y marcas grandes que se cuelan en la búsqueda por palabra clave.
+
+    Filtros opcionales por nicho en niches.yaml: ad_page_categories (la página debe tener
+    alguna categoría que contenga uno de esos textos) y ad_exclude_cta (p. ej. SHOP_NOW).
+    """
+    if cta and cta in (niche.get("ad_exclude_cta") or []):
+        return False
+    if max_page_likes and likes and likes > max_page_likes:
+        return False
+    allowed = [a.lower() for a in niche.get("ad_page_categories") or []]
+    if allowed and categories:
+        cats = [c.lower() for c in categories]
+        if any(x in c for c in cats for x in STORE_CATEGORIES):
+            return False
+        return any(a in c for c in cats for a in allowed)
+    return True
+
+
+def group_by_page(items: list[dict], niche: dict, max_page_likes: int | None = None) -> list[dict]:
     pages: dict[str, dict] = {}
     formats: dict[str, dict] = defaultdict(lambda: defaultdict(int))
     oldest: dict[str, int] = {}
+    skipped: set[str] = set()
     now = datetime.now(timezone.utc)
 
     for ad in items:
         snap = ad.get("snapshot") or {}
-        page_id = str(_get(ad, "pageId", "page_id", default="") or _get(snap, "page_id", default=""))
-        if not page_id:
+        page_id = str(_get(ad, "pageId", "page_id", default="") or _get(snap, "pageId", "page_id", default=""))
+        if not page_id or page_id in skipped:
             continue
-        name = _get(ad, "pageName", "page_name") or _get(snap, "page_name")
-        page_url = _get(snap, "page_profile_uri") or f"https://www.facebook.com/{page_id}"
-        link = _get(snap, "link_url", default="")
+        categories = _get(snap, "pageCategories", "page_categories", default=[]) or []
+        cta = _get(snap, "ctaType", "cta_type", default="")
+        likes = _get(snap, "pageLikeCount", "page_like_count")
+        if page_id not in pages and not is_target(niche, categories, cta, likes, max_page_likes):
+            skipped.add(page_id)
+            continue
 
-        fmt = (_get(snap, "display_format", default="") or "").lower()
-        if not fmt:
+        fmt = (_get(snap, "displayFormat", "display_format", default="") or "").lower()
+        if not fmt or fmt == "dco":
             fmt = "video" if snap.get("videos") else "carousel" if len(snap.get("cards") or []) > 1 else "image"
         formats[page_id][fmt] += 1
 
@@ -71,19 +106,35 @@ def group_by_page(items: list[dict], niche_id: str) -> list[dict]:
             days = (now - datetime.fromtimestamp(start, timezone.utc)).days
             oldest[page_id] = max(oldest.get(page_id, 0), days)
 
+        text = (snap.get("body") or {}).get("text") or ""
+        link = split_link(_get(snap, "linkUrl", "link_url", default=""))
         if page_id not in pages:
-            website = link if link and "facebook.com" not in link else ""
+            website = link.get("website", "")
+            if website:  # solo el dominio: así coincide con la web que da Google Maps
+                website = f"https://{domain(website)}"
             pages[page_id] = {
                 # misma clave que Google Maps cuando hay web, para fusionar ambos registros
                 "id": normalize_key(website) if website else f"fb:{page_id}",
                 "source": "meta_ads",
-                "niche": niche_id,
-                "name": name,
-                "facebook_page": page_url,
+                "niche": niche["id"],
+                "name": _get(ad, "pageName", "page_name") or _get(snap, "pageName", "page_name"),
+                "facebook_page": _get(snap, "pageProfileUri", "page_profile_uri") or f"https://www.facebook.com/{page_id}",
                 "website": website,
-                "raw": {"sample_ad_text": ((snap.get("body") or {}).get("text") or "")[:500]},
+                "raw": {
+                    "sample_ad_text": text[:500],
+                    "page_categories": categories,
+                    "page_likes": likes,
+                    "cta": cta,
+                },
             }
+        lead = pages[page_id]
+        lead["instagram"] = lead.get("instagram") or link.get("instagram")
+        lead["phone"] = lead.get("phone") or find_phone(text)
+        if link.get("whatsapp"):
+            lead["raw"]["whatsapp"] = True
 
+    if skipped:
+        print(f"    descartadas {len(skipped)} páginas que no son {niche['id']} (tiendas, proveedores, marcas grandes)")
     leads = []
     for page_id, lead in pages.items():
         lead["active_ads"] = sum(formats[page_id].values())

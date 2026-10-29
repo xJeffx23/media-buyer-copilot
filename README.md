@@ -51,6 +51,7 @@ python main.py nichos                           # ver nichos priorizados
 python main.py leads --no-ai                    # primera prueba barata: sin IA
 python main.py leads                            # completo, tiers de settings.yaml
 python main.py leads --niche dental --source ads web
+python main.py crm                              # guarda los status que editaste en el CSV
 python main.py tendencias                       # radar + ideas de contenido
 python main.py instagram                        # auditoría de tu cuenta
 ```
@@ -70,7 +71,9 @@ Antes de correr `leads`, edita `config/settings.yaml`: tus ciudades, tu país en
 | Tiene email, teléfono o Instagram | +10 |
 | 100+ reseñas | +5 |
 
-Los `ai_top_n` mejores pasan por Claude, que escribe 2-3 observaciones concretas, la mayor oportunidad, un DM y un email. Todo queda en `reports/AAAA-MM-DD_leads.csv` y en `data/copilot.db`. La columna `status` sirve como mini CRM.
+Los `ai_top_n` mejores pasan por Claude, que escribe 2-3 observaciones concretas, la mayor oportunidad, un DM y un email. Todo queda en `reports/AAAA-MM-DD_leads.csv` y en `data/copilot.db`. La columna `status` sirve como mini CRM: cámbiala en el CSV (`nuevo`, `contactado`, `respondió`, `reunión`, `cliente`, `descartado`), guárdalo y corre `python main.py crm`. `leads` también importa esos cambios antes de regenerar el CSV, así que no se pierden.
+
+En la Biblioteca de Anuncios, `ad_page_categories` y `ad_exclude_cta` de `niches.yaml` descartan tiendas y proveedores que no son el negocio objetivo, y `max_page_likes` descarta marcas enormes.
 
 ## Costos aproximados
 

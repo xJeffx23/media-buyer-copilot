@@ -30,6 +30,7 @@ def run(
 ) -> None:
     cfg = settings()["leads"]
     conn = storage.connect()
+    sync_crm(conn)
     selected = select_niches(tiers, niche_ids)
     print(f"Nichos: {', '.join(n['id'] for n in selected)}")
 
@@ -41,13 +42,20 @@ def run(
                 found += google_maps.search(niche, loc, cfg["max_places_per_search"], settings()["me"]["language"])
         if "ads" in sources:
             print(f"  [ads] {niche['id']} en Ad Library…")
-            found += meta_ads.search(niche, cfg["ad_library_country"], cfg["max_ads_per_keyword"])
+            found += meta_ads.search(niche, cfg["ad_library_country"], cfg["max_ads_per_keyword"],
+                                     cfg.get("max_page_likes"))
 
         for lead in found:
+            if lead["id"].startswith("fb:"):  # anunciante sin web: ¿ya lo tenemos de Google Maps?
+                lead["id"] = storage.find_same_business(conn, lead) or lead["id"]
             if "web" in sources and lead.get("website"):
                 lead.update({k: v for k, v in website_check.check(lead["website"]).items() if v is not None})
-            lead["score"], _ = scoring.score(lead, niche)
             storage.upsert_lead(conn, lead)
+            # el score se calcula con el registro ya fusionado (Maps + Ads)
+            merged = dict(conn.execute("SELECT * FROM leads WHERE id = ?", (lead["id"],)).fetchone())
+            score, _ = scoring.score(merged, niche)
+            conn.execute("UPDATE leads SET score = ? WHERE id = ?", (score, lead["id"]))
+            conn.commit()
         print(f"  {len(found)} leads guardados para {niche['id']}")
 
     if use_ai:
@@ -58,6 +66,15 @@ def run(
     summary = "Top leads de hoy:\n" + "\n".join(f"- {r['name']} ({r['niche']}): {r['score']}" for r in top)
     print(f"\nCSV: {out}\n{summary}")
     telegram(summary)
+
+
+def sync_crm(conn) -> None:
+    """Guarda en la base los status que cambiaste en el último CSV antes de regenerarlo."""
+    path = storage.latest_leads_csv(REPORTS_DIR)
+    if path:
+        changed = storage.import_status(conn, path)
+        if changed:
+            print(f"CRM: {changed} cambios de status importados de {path.name}")
 
 
 def enrich_with_ai(conn, top_n: int) -> None:

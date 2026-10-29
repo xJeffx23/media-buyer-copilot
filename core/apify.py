@@ -15,4 +15,4 @@ def run_actor(actor_id: str, run_input: dict) -> list[dict]:
     run = _client.actor(actor_id).call(run_input=run_input)
     if not run:
         return []
-    return list(_client.dataset(run["defaultDatasetId"]).iterate_items())
+    return list(_client.dataset(run.default_dataset_id).iterate_items())
